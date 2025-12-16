@@ -84,7 +84,7 @@
 			<h2 class="text-5xl font-semibold tracking-tight text-white sm:text-7xl">
 				Selamat Datang di Dinopedia
 			</h2>
-			<p class="mt-8 text-lg font-medium text-pretty text-gray-300 sm:text-xl/8">
+			<p class="mt-8 text-pretty text-lg font-medium text-gray-300 sm:text-xl/8">
 				Dinopedia adalah ensiklopedia digital yang menghadirkan informasi lengkap, menarik, dan
 				akurat tentang berbagai jenis dinosaurus yang pernah hidup di bumi. Temukan fakta ilmiah,
 				gambar ilustratif, serta klasifikasi berdasarkan era dan jenisnya.
@@ -124,7 +124,7 @@
 </div>
 
 <section class="bg-white py-12 dark:bg-black">
-	{#if filteredDinosaurs.length === 0 && loading}
+	{#if filteredDinosaurs.data.length === 0 && loading}
 		<div class="container mx-auto px-4 md:px-10 lg:px-20">
 			<div class="mb-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 				{#each Array(3) as _}
