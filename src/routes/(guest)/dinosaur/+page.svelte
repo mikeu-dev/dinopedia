@@ -9,6 +9,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { searchDinos, getRandomDino } from '$lib/api/dinosaur';
 	import { goto } from '$app/navigation';
+	import ComparisonBar from '$lib/components/organisms/ComparisonBar/ComparisonBar.svelte';
 
 	//types/clades.ts
 	//   export interface DinosaurItem {
@@ -356,3 +357,5 @@
 		</div>
 	{/if}
 </section>
+
+<ComparisonBar />
