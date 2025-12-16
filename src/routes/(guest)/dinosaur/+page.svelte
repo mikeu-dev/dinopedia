@@ -7,7 +7,8 @@
 	import type { DinosaurItem, imageInfo } from '$lib/types/clades';
 	import { Label } from '$lib/components/ui/label';
 	import { Button } from '$lib/components/ui/button';
-	import { searchDinos } from '$lib/api/dinosaur';
+	import { searchDinos, getRandomDino } from '$lib/api/dinosaur';
+	import { goto } from '$app/navigation';
 
 	//types/clades.ts
 	//   export interface DinosaurItem {
@@ -100,6 +101,20 @@
 
 	function handleFilterChange() {
 		applyFilters();
+	}
+
+	async function handleRandomDiscovery() {
+		loading = true;
+		try {
+			const res = await getRandomDino(1);
+			if (res.data && res.data.length > 0) {
+				await goto(`/dinosaur/${res.data[0].name}`);
+			}
+		} catch (e) {
+			console.error('Random discovery failed', e);
+		} finally {
+			loading = false;
+		}
 	}
 </script>
 
@@ -276,6 +291,29 @@
 						<ul class="space-y-2 text-sm">
 							<li><a href="/" class="block py-1 hover:text-teal-500">Home</a></li>
 							<li><a href="#" class="block py-1 hover:text-teal-500">Tentang Kami</a></li>
+							<li>
+								<button
+									onclick={handleRandomDiscovery}
+									class="flex w-full items-center gap-2 py-1 text-left font-semibold text-teal-600 hover:text-teal-700 hover:underline"
+								>
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="16"
+										height="16"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										class="lucide lucide-sparkles"
+										><path
+											d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z"
+										/></svg
+									>
+									Surprise Me!
+								</button>
+							</li>
 						</ul>
 					</div>
 				</aside>

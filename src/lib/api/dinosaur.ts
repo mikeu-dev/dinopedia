@@ -47,3 +47,12 @@ export async function getDinoByName(name: string) {
     }
     return await res.json();
 }
+
+export async function getRandomDino(count: number = 1) {
+    const fullUrl = `${PUBLIC_RESTASAURUS_URL}/dinosaurs/random/${count}`;
+    const res = await fetch(fullUrl);
+    if (!res.ok) {
+        throw new Error(`Gagal fetch random dinosaur: ${res.status}`);
+    }
+    return await res.json();
+}
