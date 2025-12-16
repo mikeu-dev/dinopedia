@@ -5,6 +5,9 @@
 	import { bdDinosaurs } from '$lib/data/images.js';
 	import { m } from '$lib/paraglide/messages.js';
 	import type { DinosaurItem, imageInfo } from '$lib/types/clades';
+	import { Label } from '$lib/components/ui/label';
+	import { Button } from '$lib/components/ui/button';
+	import { searchDinos } from '$lib/api/dinosaur';
 
 	//types/clades.ts
 	//   export interface DinosaurItem {
@@ -16,11 +19,18 @@
 	// }
 
 	let { data } = $props();
-	console.log('dinosaurs :', data.dinosaurs);
 
 	let loading: boolean = $state(true);
 	let aboutImage: imageInfo = bdDinosaurs;
 	let searchForDinosaur = $state('');
+
+	// Filter States
+	let selectedDiet = $state('all');
+	let selectedLocomotion = $state('all');
+
+	// Data from server
+	const diets = data.diets || [];
+	const locomotions = data.locomotions || [];
 
 	// Filter berdasarkan pencarian
 	let filteredDinosaurs = $state<DinosaurItem>({
@@ -31,33 +41,66 @@
 		data: []
 	});
 
+	// Base data from API (either all or filtered by backend)
+	let apiData = $state<any[]>([]);
+
+	async function applyFilters() {
+		loading = true;
+		try {
+			if (selectedDiet === 'all' && selectedLocomotion === 'all') {
+				// Reset to initial data
+				if (data.dinosaurs) {
+					apiData = data.dinosaurs.data;
+					filteredDinosaurs = { ...data.dinosaurs };
+				}
+			} else {
+				// Call API with filters
+				const result = await searchDinos({
+					diet: selectedDiet,
+					locomotion: selectedLocomotion
+				});
+				apiData = result.data || [];
+				filteredDinosaurs = {
+					...filteredDinosaurs,
+					data: apiData,
+					count: apiData.length
+				};
+			}
+		} catch (e) {
+			console.error('Filter error', e);
+			apiData = [];
+		} finally {
+			loading = false;
+		}
+	}
+
 	$effect(() => {
-		if (Array.isArray(data?.dinosaurs?.data)) {
-			const filteredData = data.dinosaurs.data.filter((dino: any) =>
+		// Client-side text search on top of Current API Data
+		if (Array.isArray(apiData)) {
+			const filteredData = apiData.filter((dino: any) =>
 				dino.name.toLowerCase().includes(searchForDinosaur.toLowerCase())
 			);
 			filteredDinosaurs = {
-				...data.dinosaurs,
+				...filteredDinosaurs,
 				data: filteredData,
 				count: filteredData.length
-			};
-		} else {
-			filteredDinosaurs = {
-				prevPage: '',
-				currentPage: 1,
-				nextPage: '',
-				count: 0,
-				data: []
 			};
 		}
 	});
 
 	onMount(() => {
+		if (data.dinosaurs?.data) {
+			apiData = data.dinosaurs.data;
+		}
 		// Simulasi loading
 		setTimeout(() => {
 			loading = false;
 		}, 1000);
 	});
+
+	function handleFilterChange() {
+		applyFilters();
+	}
 </script>
 
 <div class="relative isolate overflow-hidden bg-gray-900 py-24 sm:py-32">
@@ -139,39 +182,137 @@
 		</div>
 	{:else}
 		<div class="container mx-auto px-6">
-			<div class="flex flex-col gap-6 md:flex-row md:items-start">
-				<!-- Sidebar -->
+			<div class="flex flex-col gap-8 md:flex-row md:items-start">
+				<!-- Sidebar Filters -->
 				<aside
-					class="w-full rounded-lg bg-gray-100 p-4 text-gray-700 md:w-1/4 dark:bg-gray-800 dark:text-gray-100"
+					class="sticky top-4 w-full rounded-xl border border-gray-200 bg-gray-50 p-6 md:w-1/4 dark:border-gray-700 dark:bg-gray-800"
 				>
-					<h3 class="mb-4 text-xl font-semibold">Menu</h3>
-					<ul class="space-y-2">
-						<li><a href="#" class="block hover:text-teal-500">Home</a></li>
-						<li><a href="#" class="block hover:text-teal-500">Dinosaurus</a></li>
-						<li><a href="#" class="block hover:text-teal-500">Favorit</a></li>
-						<li><a href="#" class="block hover:text-teal-500">Tentang</a></li>
-					</ul>
+					<h3 class="mb-6 flex items-center gap-2 text-xl font-bold dark:text-white">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="20"
+							height="20"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							class="lucide lucide-filter"
+							><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg
+						>
+						Filters
+					</h3>
+
+					<div class="space-y-6">
+						<!-- Search Name -->
+						<div class="space-y-2">
+							<Label for="search" class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+								>Search Name</Label
+							>
+							<input
+								type="text"
+								bind:value={searchForDinosaur}
+								name="search"
+								id="search"
+								placeholder="Type dinosaur name..."
+								class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white"
+							/>
+						</div>
+
+						<!-- Filter Diet -->
+						<div class="space-y-2">
+							<Label for="diet" class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+								>Diet</Label
+							>
+							<select
+								id="diet"
+								bind:value={selectedDiet}
+								onchange={handleFilterChange}
+								class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white"
+							>
+								<option value="all">All Diets</option>
+								{#each diets as diet}
+									<option value={diet._id.diet}>{diet._id.diet}</option>
+								{/each}
+							</select>
+						</div>
+
+						<!-- Filter Locomotion -->
+						<div class="space-y-2">
+							<Label for="locomotion" class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+								>Locomotion</Label
+							>
+							<select
+								id="locomotion"
+								bind:value={selectedLocomotion}
+								onchange={handleFilterChange}
+								class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white"
+							>
+								<option value="all">All Locomotions</option>
+								{#each locomotions as loc}
+									<option value={loc._id.locomotionType}>{loc._id.locomotionType}</option>
+								{/each}
+							</select>
+						</div>
+
+						<div class="pt-2">
+							<Button
+								variant="outline"
+								class="w-full"
+								onclick={() => {
+									selectedDiet = 'all';
+									selectedLocomotion = 'all';
+									searchForDinosaur = '';
+									handleFilterChange();
+								}}
+							>
+								Reset Filters
+							</Button>
+						</div>
+					</div>
+
+					<div class="mt-8 border-t border-gray-200 pt-6 dark:border-gray-700">
+						<ul class="space-y-2 text-sm">
+							<li><a href="/" class="block py-1 hover:text-teal-500">Home</a></li>
+							<li><a href="#" class="block py-1 hover:text-teal-500">Tentang Kami</a></li>
+						</ul>
+					</div>
 				</aside>
 
 				<!-- Main Content -->
 				<section class="w-full md:w-3/4">
-					<h2
-						class="mb-6 text-center text-4xl font-extrabold tracking-tight text-gray-700 underline decoration-yellow-500 md:text-left dark:text-yellow-400 dark:decoration-yellow-600"
-					>
-						{m.dino()}
-					</h2>
+					<div class="mb-6 flex items-center justify-between">
+						<h2
+							class="text-3xl font-extrabold tracking-tight text-gray-800 underline decoration-yellow-500 dark:text-yellow-400 dark:decoration-yellow-600"
+						>
+							{m.dino()}
+						</h2>
+						<span class="text-sm font-medium text-gray-500">
+							Showing {filteredDinosaurs.count} results
+						</span>
+					</div>
 
-					<input
-						type="text"
-						bind:value={searchForDinosaur}
-						name="company"
-						id="company"
-						autocomplete="organization"
-						placeholder="Search..."
-						class="mb-4 block w-full rounded-md bg-transparent px-3.5 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-teal-500"
-					/>
-
-					<DinosaurList dinosaurs={filteredDinosaurs} />
+					{#if filteredDinosaurs.data.length === 0}
+						<div
+							class="rounded-xl border border-gray-100 bg-gray-50 py-20 text-center dark:border-gray-700 dark:bg-gray-800"
+						>
+							<p class="text-lg text-gray-500 dark:text-gray-400">
+								No dinosaurs found matching your criteria.
+							</p>
+							<Button
+								variant="link"
+								onclick={() => {
+									selectedDiet = 'all';
+									selectedLocomotion = 'all';
+									searchForDinosaur = '';
+									handleFilterChange();
+								}}>Clear all filters</Button
+							>
+						</div>
+					{:else}
+						<DinosaurList dinosaurs={filteredDinosaurs} />
+					{/if}
 				</section>
 			</div>
 		</div>
