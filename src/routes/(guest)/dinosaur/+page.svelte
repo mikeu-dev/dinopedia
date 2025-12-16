@@ -323,6 +323,22 @@
 									<span class="text-base">❤️</span> My Favorites
 								</a>
 							</li>
+							<li>
+								<a
+									href="/timeline"
+									class="flex w-full items-center gap-2 py-1 text-left font-semibold text-gray-600 hover:text-teal-600 hover:underline dark:text-gray-300 dark:hover:text-teal-400"
+								>
+									<span class="text-base">⏳</span> Evolution Timeline
+								</a>
+							</li>
+							<li>
+								<a
+									href="/quiz"
+									class="flex w-full items-center gap-2 py-1 text-left font-semibold text-gray-600 hover:text-yellow-600 hover:underline dark:text-gray-300 dark:hover:text-yellow-400"
+								>
+									<span class="text-base">🎮</span> Dino Quiz
+								</a>
+							</li>
 						</ul>
 					</div>
 				</aside>

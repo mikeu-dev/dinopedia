@@ -26,10 +26,11 @@ export async function getLocomotions() {
     return await res.json();
 }
 
-export async function searchDinos(params: { diet?: string, locomotion?: string }) {
+export async function searchDinos(params: { diet?: string, locomotion?: string, limit?: number }) {
     const url = new URL(`${PUBLIC_RESTASAURUS_URL}/search`);
     if (params.diet && params.diet !== 'all') url.searchParams.append('diet', params.diet);
     if (params.locomotion && params.locomotion !== 'all') url.searchParams.append('locomotion', params.locomotion);
+    if (params.limit) url.searchParams.append('limit', params.limit.toString());
 
     const res = await fetch(url.toString());
     if (!res.ok) {
