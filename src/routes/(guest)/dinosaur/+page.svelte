@@ -315,6 +315,14 @@
 									Surprise Me!
 								</button>
 							</li>
+							<li>
+								<a
+									href="/favorites"
+									class="flex w-full items-center gap-2 py-1 text-left font-semibold text-gray-600 hover:text-red-500 hover:underline dark:text-gray-300 dark:hover:text-red-400"
+								>
+									<span class="text-base">❤️</span> My Favorites
+								</a>
+							</li>
 						</ul>
 					</div>
 				</aside>

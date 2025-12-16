@@ -4,6 +4,7 @@
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import { DinosaurClasification, DinosaurSource } from '$lib/components/molecules';
 	import CompareButton from '$lib/components/molecules/CompareButton/CompareButton.svelte';
+	import FavoriteButton from '$lib/components/molecules/FavoriteButton/FavoriteButton.svelte';
 	import { onMount } from 'svelte';
 
 	export let data;
@@ -127,15 +128,26 @@
 					<Badge variant="secondary" class="w-fit px-3 py-1 text-lg">{dinosaur.temporalRange}</Badge
 					>
 				</div>
-				<CompareButton
-					dino={{
-						name: dinosaur.name,
-						description: dinosaur.description,
-						image: directImageURL || image.imageURL, // Fallback to initial URL
-						diet: dinosaur.diet,
-						era: dinosaur.temporalRange
-					}}
-				/>
+				<div class="flex items-center gap-2">
+					<FavoriteButton
+						dino={{
+							name: dinosaur.name,
+							description: dinosaur.description,
+							image: directImageURL || image.imageURL,
+							diet: dinosaur.diet,
+							era: dinosaur.temporalRange
+						}}
+					/>
+					<CompareButton
+						dino={{
+							name: dinosaur.name,
+							description: dinosaur.description,
+							image: directImageURL || image.imageURL, // Fallback to initial URL
+							diet: dinosaur.diet,
+							era: dinosaur.temporalRange
+						}}
+					/>
+				</div>
 			</div>
 
 			<div class="prose dark:prose-invert max-w-none">

@@ -2,6 +2,7 @@
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button';
 	import CompareButton from '$lib/components/molecules/CompareButton/CompareButton.svelte';
+	import FavoriteButton from '$lib/components/molecules/FavoriteButton/FavoriteButton.svelte';
 	export let dinosaur;
 	import { onMount } from 'svelte';
 
@@ -76,9 +77,25 @@
 	<div class="flex flex-1 flex-col gap-6 p-5 md:flex-row">
 		<!-- Image Section -->
 		<div class="w-full shrink-0 md:w-1/3">
+			<!-- Image Area -->
 			<div
-				class="relative flex aspect-square items-center justify-center overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-900"
+				class="group relative flex aspect-square items-center justify-center overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-900"
 			>
+				<div
+					class="absolute right-2 top-2 z-10 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+				>
+					<FavoriteButton
+						dino={{
+							name: dinosaur.name,
+							description: dinosaur.description,
+							image: directImageURL,
+							diet: dinosaur.diet,
+							era: dinosaur.temporalRange
+						}}
+						size="icon"
+					/>
+				</div>
+
 				{#if directImageURL}
 					<img
 						src={directImageURL}
